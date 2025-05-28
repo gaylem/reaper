@@ -183,7 +183,7 @@ echo "[+] Checking for possible subdomain takeover..."
 
 subjack -w $dir_name/subdomains/final.txt -t 100 -timeout 30 -ssl -c /usr/share/subjack/fingerprints.json -v 3 -o $dir_name/potential_takeovers/potential_takeovers.txt
 
-echo "[+] Live subdomains harvested."
+echo "[+] Subdomain takeover check complete."
 
 
 echo "┌──────────────────────────────┐"
