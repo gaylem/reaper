@@ -2,12 +2,6 @@
 #!/usr/bin/env bash
 export PATH=$PATH:/home/kali/go/bin # This is needed or waybackurls doesn't work
 
-
-
-url=$1
-date=$(date +%Y-%m-%d)
-dir_name="${url}_${date}"
-
 echo ""
 echo "Don't fear the..."
 echo " ██▀███  ▓█████ ▄▄▄       ██▓███  ▓█████  ██▀███  "
@@ -21,6 +15,11 @@ echo "  ░░   ░    ░    ░   ▒   ░░          ░     ░░   ░ 
 echo "   ░        ░  ░     ░  ░            ░  ░   ░     "
 echo ""
 echo ""
+
+# Instantiate Global Variables
+url=$1
+date=$(date +%Y-%m-%d)
+dir_name="${url}_${date}"
 
 echo "┌──────────────────────────────┐"
 echo "|  CREATE DIRECTORIES & FILES  │"
@@ -188,26 +187,6 @@ echo "[+] Live subdomains harvested."
 
 
 echo "┌──────────────────────────────┐"
-echo "│           GOBUSTER           │"
-echo "└──────────────────────────────┘"
-###############################
-#### TODO: Finish Gobuster ####
-###############################
-echo "[+] Dirbusting with gobuster..."
-
-while read -r subdomain; do
-    echo "[*] Scanning $subdomain"
-
-    timeout 5m gobuster dir \
-        -u https://$subdomain \
-        --wordlist /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt \
-        -q \
-        2>/dev/null | tee >(grep "\(Status: (4|5)[0-9]{2}\)" >> "$dir_name/gobuster_failed.txt") >> "$dir_name/gobuster_results.txt"
-
-done < "$dir_name/subdomains/final.txt"
-
-
-echo "┌──────────────────────────────┐"
 echo "│           NMAP SCAN          │"
 echo "└──────────────────────────────┘"
 
@@ -216,12 +195,12 @@ echo "[+] Cleaning scans directory..."
 rm -f $dir_name/nmap/*
 
 echo "[+] Scanning for open ports..."
-timeout 1m nmap -T4 -p- -A -iL $dir_name/httprobe/alive.txt -oA $dir_name/nmap/nmap > /dev/null 2>&1
+timeout 5m nmap -T4 -p- -A -iL $dir_name/httprobe/alive.txt -oA $dir_name/nmap/nmap > /dev/null 2>&1
 if [ $? -eq 124 ]; then
   echo "[-] nmap timed out after 5 minutes...continuing."
 else
   echo "[+] nmap scan complete"
-
+fi
 
 echo "┌──────────────────────────────┐"
 echo "│        WAYBACK MACHINE       │"
@@ -266,14 +245,8 @@ for line in $(cat $dir_name/wayback/wayback_output.txt);do
 	fi
 done
 
-##############################
-#### TODO: Add Eyewitness ####
-##############################
-
 echo "┌──────────────────────────────┐"
 echo "│       REAPING COMPLETE       │"
 echo "└──────────────────────────────┘"
 
 echo "[+] ${dir_name} has been reaped. The harvest is plentiful; enjoy the spoils."
-
-
